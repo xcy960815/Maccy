@@ -18,7 +18,7 @@
                BlueprintIdentifier = "DAEE38421E3DBEB100DD2966"
                BuildableName = "Clipbook.app"
                BlueprintName = "Maccy"
-               ReferencedContainer = "container:Maccy.xcodeproj">
+               ReferencedContainer = "container:Clipbook.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -30,7 +30,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:Maccy.xctestplan"
+            reference = "container:Clipbook.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>
@@ -42,7 +42,7 @@
                BlueprintIdentifier = "DA360DAF1E3DF137005C6F6B"
                BuildableName = "MaccyTests.xctest"
                BlueprintName = "MaccyTests"
-               ReferencedContainer = "container:Maccy.xcodeproj">
+               ReferencedContainer = "container:Clipbook.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -52,7 +52,7 @@
                BlueprintIdentifier = "DA0EE7B5204657830025FC60"
                BuildableName = "MaccyUITests.xctest"
                BlueprintName = "MaccyUITests"
-               ReferencedContainer = "container:Maccy.xcodeproj">
+               ReferencedContainer = "container:Clipbook.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -74,7 +74,7 @@
             BlueprintIdentifier = "DAEE38421E3DBEB100DD2966"
             BuildableName = "Clipbook.app"
             BlueprintName = "Maccy"
-            ReferencedContainer = "container:Maccy.xcodeproj">
+            ReferencedContainer = "container:Clipbook.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -91,7 +91,7 @@
             BlueprintIdentifier = "DAEE38421E3DBEB100DD2966"
             BuildableName = "Clipbook.app"
             BlueprintName = "Maccy"
-            ReferencedContainer = "container:Maccy.xcodeproj">
+            ReferencedContainer = "container:Clipbook.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

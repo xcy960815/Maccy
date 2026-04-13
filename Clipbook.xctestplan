@@ -15,7 +15,7 @@
       }
     ],
     "targetForVariableExpansion" : {
-      "containerPath" : "container:Maccy.xcodeproj",
+      "containerPath" : "container:Clipbook.xcodeproj",
       "identifier" : "DAEE38421E3DBEB100DD2966",
       "name" : "Maccy"
     },
@@ -40,14 +40,14 @@
         "HistoryTests\/testRemoving()"
       ],
       "target" : {
-        "containerPath" : "container:Maccy.xcodeproj",
+        "containerPath" : "container:Clipbook.xcodeproj",
         "identifier" : "DA360DAF1E3DF137005C6F6B",
         "name" : "MaccyTests"
       }
     },
     {
       "target" : {
-        "containerPath" : "container:Maccy.xcodeproj",
+        "containerPath" : "container:Clipbook.xcodeproj",
         "identifier" : "DA0EE7B5204657830025FC60",
         "name" : "MaccyUITests"
       }

@@ -3,7 +3,7 @@ import XCTest
 
 // swiftlint:disable file_length
 // swiftlint:disable type_body_length
-class MaccyUITests: XCTestCase {
+class ClipbookUITests: XCTestCase {
   let app = XCUIApplication()
   let finder = XCUIApplication(bundleIdentifier: "com.apple.finder")
   let pasteboard = NSPasteboard.general
