@@ -62,8 +62,8 @@ struct GeneralSettingsPane: View {
     "InputMonitoringMessage",
     tableName: "GeneralSettings",
     bundle: .main,
-    value: "Double-click modifier key needs Input Monitoring or Accessibility permission to detect modifier key presses globally. Please enable either permission for Clipbook in System Settings → Privacy & Security.",
-    comment: "Alert message explaining the permission requirement for double-click modifier key"
+    value: "Double-click modifier key works best with Input Monitoring. If Input Monitoring is unavailable, Accessibility can be used as a fallback. Please enable at least one of them for Clipbook in System Settings → Privacy & Security.",
+    comment: "Alert message explaining that Input Monitoring is preferred and Accessibility is the fallback"
   )
   private let openSystemSettingsLabel = NSLocalizedString(
     "OpenSystemSettings",
