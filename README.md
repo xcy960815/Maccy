@@ -72,7 +72,7 @@ Clipbook works on macOS Sonoma 14 or later.
 You can tell Clipbook to ignore all copied items:
 
 ```sh
-defaults write org.p0deje.Clipbook ignoreEvents true # default is false
+defaults write com.xcy960815.Clipbook ignoreEvents true # default is false
 ```
 
 This is useful if you have some workflow for copying sensitive data. You can set `ignoreEvents` to true, copy the data and set `ignoreEvents` back to false.
@@ -110,7 +110,7 @@ By default, Clipbook checks clipboard every 500 ms, which should be enough for m
 to speed it up, you can change it with `defaults`:
 
 ```sh
-defaults write org.p0deje.Clipbook clipboardCheckInterval 0.1 # 100 ms
+defaults write com.xcy960815.Clipbook clipboardCheckInterval 0.1 # 100 ms
 ```
 
 ## FAQ
@@ -137,7 +137,7 @@ defaults write org.p0deje.Clipbook clipboardCheckInterval 0.1 # 100 ms
 If for some reason it doesn't work, run the following command in Terminal.app:
 
 ```sh
-defaults write org.p0deje.Clipbook showFooter 1
+defaults write com.xcy960815.Clipbook showFooter 1
 ```
 
 ### How to ignore copies from [Universal Clipboard](https://support.apple.com/en-us/102430)?

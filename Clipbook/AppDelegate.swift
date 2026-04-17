@@ -94,7 +94,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     panel = FloatingPanel(
       contentRect: NSRect(origin: .zero, size: Defaults[.windowSize]),
-      identifier: Bundle.main.bundleIdentifier ?? "org.p0deje.Clipbook",
+      identifier: Bundle.main.bundleIdentifier ?? "com.xcy960815.Clipbook",
       statusBarButton: statusItem.button,
       onClose: { AppState.shared.popup.reset() }
     ) {

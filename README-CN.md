@@ -70,7 +70,7 @@ Clipbook 需要 macOS Sonoma 14 或更高版本。
 你可以让 Clipbook 忽略所有新复制的内容：
 
 ```sh
-defaults write org.p0deje.Clipbook ignoreEvents true # 默认值为 false
+defaults write com.xcy960815.Clipbook ignoreEvents true # 默认值为 false
 ```
 
 如果你的工作流里会处理敏感信息，这个功能很有用。你可以先把 `ignoreEvents` 设为 `true`，完成复制后再改回 `false`。
@@ -102,7 +102,7 @@ defaults write org.p0deje.Clipbook ignoreEvents true # 默认值为 false
 默认情况下，Clipbook 每 500 毫秒检查一次剪贴板，对大多数用户已经足够。如果你想进一步加快速度，可以使用 `defaults` 修改：
 
 ```sh
-defaults write org.p0deje.Clipbook clipboardCheckInterval 0.1 # 100 ms
+defaults write com.xcy960815.Clipbook clipboardCheckInterval 0.1 # 100 ms
 ```
 
 ## 常见问题
@@ -129,7 +129,7 @@ defaults write org.p0deje.Clipbook clipboardCheckInterval 0.1 # 100 ms
 如果因为某些原因无法操作，也可以在终端里执行：
 
 ```sh
-defaults write org.p0deje.Clipbook showFooter 1
+defaults write com.xcy960815.Clipbook showFooter 1
 ```
 
 ### 如何忽略 Universal Clipboard 的内容？

@@ -35,6 +35,7 @@ class AppState: Sendable {
   private let about = About()
   private var settingsWindowController: SettingsWindowController?
   private var settingsWindowObservers: [NSObjectProtocol] = []
+  private var settingsWindowVisibilityObserver: NSKeyValueObservation?
 
   init(history: History, footer: Footer) {
     self.history = history
@@ -171,6 +172,11 @@ class AppState: Sendable {
   private func installSettingsWindowObservers() {
     guard settingsWindowObservers.isEmpty, let settingsWindow = settingsWindowController?.window else {
       return
+    }
+
+    settingsWindowVisibilityObserver = settingsWindow.observe(\.isVisible, options: [.new]) { _, change in
+      guard let isVisible = change.newValue else { return }
+      self.popup.setSettingsWindowPresented(isVisible)
     }
 
     settingsWindowObservers = [

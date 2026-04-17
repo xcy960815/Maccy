@@ -82,6 +82,7 @@ struct GeneralSettingsPane: View {
   @State private var pasteWithoutFormatting = HistoryItemAction.pasteWithoutFormatting.modifierFlags.description
 
   @State private var doubleClickRecorder = DoubleClickModifierRecorder()
+  @State private var isDoubleClickRecorderHighlighted = false
   @State private var showResetSettingsConfirmation = false
   @State private var showInputMonitoringAlert = false
   @State private var updater = SoftwareUpdater()
@@ -112,9 +113,19 @@ struct GeneralSettingsPane: View {
           if doubleClickPopupEnabled {
             ZStack(alignment: .trailing) {
               DoubleClickRecorderField(
-                text: doubleClickModifierKey.displayName,
+                text: doubleClickModifierKey.recorderText,
                 placeholder: doubleClickPlaceholder
               )
+              .overlay {
+                if isDoubleClickRecorderHighlighted {
+                  RoundedRectangle(cornerRadius: 9)
+                    .stroke(Color.accentColor, lineWidth: 4)
+                    .padding(-3)
+                }
+              }
+              .onTapGesture {
+                isDoubleClickRecorderHighlighted = true
+              }
 
               if doubleClickModifierKey != .none {
                 Button(action: clearDoubleClickSelection) {
@@ -220,6 +231,7 @@ struct GeneralSettingsPane: View {
     .onAppear {
       doubleClickRecorder.onSelection = { key in
         doubleClickModifierKey = key
+        isDoubleClickRecorderHighlighted = false
       }
       syncDoubleClickRecorderState()
     }
@@ -259,6 +271,7 @@ struct GeneralSettingsPane: View {
       doubleClickModifierKey = .none
     }
 
+    isDoubleClickRecorderHighlighted = false
     syncDoubleClickRecorderState()
   }
 
@@ -283,6 +296,7 @@ struct GeneralSettingsPane: View {
 
   private func clearDoubleClickSelection() {
     doubleClickModifierKey = .none
+    isDoubleClickRecorderHighlighted = false
   }
 }
 
@@ -293,16 +307,24 @@ private struct DoubleClickRecorderField: NSViewRepresentable {
   let text: String
   let placeholder: String
 
+  final class Coordinator {
+    var cancelButtonCell: NSButtonCell?
+  }
+
+  func makeCoordinator() -> Coordinator {
+    Coordinator()
+  }
+
   func makeNSView(context: Context) -> NSViewType {
     let field = KeyboardShortcuts.RecorderCocoa(for: .doubleClickModifierPresentation)
     configure(field)
-    update(field)
+    update(field, coordinator: context.coordinator)
     return field
   }
 
   func updateNSView(_ nsView: NSViewType, context: Context) {
     configure(nsView)
-    update(nsView)
+    update(nsView, coordinator: context.coordinator)
   }
 
   private func configure(_ field: NSViewType) {
@@ -316,9 +338,14 @@ private struct DoubleClickRecorderField: NSViewRepresentable {
     }
   }
 
-  private func update(_ field: NSViewType) {
+  private func update(_ field: NSViewType, coordinator: Coordinator) {
     field.placeholderString = placeholder
     field.stringValue = text
+
+    if let cell = field.cell as? NSSearchFieldCell {
+      coordinator.cancelButtonCell = coordinator.cancelButtonCell ?? cell.cancelButtonCell
+      cell.cancelButtonCell = text.isEmpty ? nil : coordinator.cancelButtonCell
+    }
   }
 }
 

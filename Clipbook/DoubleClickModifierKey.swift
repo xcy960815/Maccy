@@ -23,6 +23,10 @@ enum DoubleClickModifierKey: String, CaseIterable, Defaults.Serializable {
     }
   }
 
+  var recorderText: String {
+    modifierFlags.description
+  }
+
   var modifierFlags: NSEvent.ModifierFlags {
     switch self {
     case .none:
