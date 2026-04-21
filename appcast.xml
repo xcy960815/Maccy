@@ -8,14 +8,14 @@
     <item>
       <title>0.0.6</title>
       <description><![CDATA[<p>See the release notes for details.</p>]]></description>
-      <pubDate>Sun, 19 Apr 2026 16:26:08 GMT</pubDate>
-      <releaseNotesLink>https://github.com/xcy960815/Clipbook/releases/tag/v0.0.6</releaseNotesLink>
+      <pubDate>Tue, 21 Apr 2026 10:26:24 GMT</pubDate>
+      <releaseNotesLink>https://github.com/xcy960815/Clipbook/releases/tag/v0.0.7</releaseNotesLink>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
       <enclosure
-        url="https://github.com/xcy960815/Clipbook/releases/download/v0.0.6/Clipbook-v0.0.6-unsigned.app.zip"
+        url="https://github.com/xcy960815/Clipbook/releases/download/v0.0.7/Clipbook-v0.0.7-unsigned.app.zip"
         sparkle:version="6"
         sparkle:shortVersionString="0.0.6"
-        length="3605139"
+        length="3605387"
         type="application/octet-stream"
       />
     </item>
