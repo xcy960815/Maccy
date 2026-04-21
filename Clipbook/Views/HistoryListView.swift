@@ -102,13 +102,16 @@ struct HistoryListView: View {
         .padding(.top, scrollTopPadding)
         .padding(.bottom, scrollBottomPadding)
         .task(id: appState.navigator.scrollTarget) {
-          guard appState.navigator.scrollTarget != nil else { return }
+          guard let selection = appState.navigator.scrollTarget else { return }
 
-          try? await Task.sleep(for: .milliseconds(10))
+          await Task.yield()
           guard !Task.isCancelled else { return }
+          guard appState.navigator.scrollTarget == selection else { return }
 
-          if let selection = appState.navigator.scrollTarget {
+          withTransaction(Transaction(animation: nil)) {
             proxy.scrollTo(selection)
+          }
+          if appState.navigator.scrollTarget == selection {
             appState.navigator.scrollTarget = nil
           }
         }
@@ -116,7 +119,9 @@ struct HistoryListView: View {
           if scenePhase == .active {
             searchFocused = true
             appState.navigator.isKeyboardNavigating = true
-            appState.navigator.select(item: appState.history.unpinnedItems.first ?? appState.history.pinnedItems.first)
+            appState.navigator.selectWithoutScrolling(
+              item: appState.history.unpinnedItems.first ?? appState.history.pinnedItems.first
+            )
             appState.preview.enableAutoOpen()
             appState.preview.resetAutoOpenSuppression()
             appState.preview.startAutoOpen()
