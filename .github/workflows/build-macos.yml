@@ -12,6 +12,9 @@ permissions:
 jobs:
   build:
     runs-on: macos-26
+    env:
+      SOURCE_PACKAGES_DIR: build/SourcePackages
+      SPARKLE_BIN_DIR: build/SourcePackages/artifacts/sparkle/Sparkle/bin
 
     steps:
       - name: Check out repository
@@ -23,7 +26,11 @@ jobs:
         run: xcodebuild -version
 
       - name: Resolve Swift package dependencies
-        run: xcodebuild -resolvePackageDependencies -project Clipbook.xcodeproj
+        run: >
+          xcodebuild
+          -resolvePackageDependencies
+          -project Clipbook.xcodeproj
+          -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_DIR"
 
       - name: Build unsigned app
         run: >
@@ -32,6 +39,7 @@ jobs:
           -scheme Clipbook
           -configuration Release
           -derivedDataPath build
+          -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_DIR"
           -destination 'platform=macOS'
           CODE_SIGNING_ALLOWED=NO
           build
@@ -42,6 +50,26 @@ jobs:
           build/Build/Products/Release/Clipbook.app
           Clipbook-${{ github.ref_name }}-unsigned.app.zip
 
+      - name: Validate Sparkle signing secret
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          if [ -z "$SPARKLE_PRIVATE_KEY" ]; then
+            echo "SPARKLE_PRIVATE_KEY secret is not configured" >&2
+            exit 1
+          fi
+
+      - name: Sign app artifact for Sparkle
+        id: sparkle
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          ASSET_NAME="Clipbook-${{ github.ref_name }}-unsigned.app.zip"
+          SIGNATURE=$(printf '%s' "$SPARKLE_PRIVATE_KEY" | "$SPARKLE_BIN_DIR/sign_update" --ed-key-file - -p "$ASSET_NAME")
+          echo "sparkle_signature=$SIGNATURE" >> "$GITHUB_OUTPUT"
+
       - name: Read build metadata
         id: metadata
         run: |
@@ -50,6 +78,9 @@ jobs:
           echo "build_version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$INFO_PLIST")" >> "$GITHUB_OUTPUT"
           echo "minimum_system_version=$(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$INFO_PLIST")" >> "$GITHUB_OUTPUT"
           echo "asset_size=$(stat -f%z "Clipbook-${{ github.ref_name }}-unsigned.app.zip")" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ steps.sparkle.outputs.sparkle_signature }}" ]; then
+            echo "sparkle_signature=${{ steps.sparkle.outputs.sparkle_signature }}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Upload app artifact
         uses: actions/upload-artifact@v6
@@ -81,6 +112,8 @@ jobs:
           BUILD_VERSION: ${{ steps.metadata.outputs.build_version }}
           MINIMUM_SYSTEM_VERSION: ${{ steps.metadata.outputs.minimum_system_version }}
           ASSET_SIZE: ${{ steps.metadata.outputs.asset_size }}
+          SPARKLE_SIGNATURE: ${{ steps.metadata.outputs.sparkle_signature }}
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: |
           git fetch origin master
           git checkout master
@@ -103,6 +136,7 @@ jobs:
                   url="https://github.com/xcy960815/Clipbook/releases/download/${TAG_NAME}/Clipbook-${TAG_NAME}-unsigned.app.zip"
                   sparkle:version="${BUILD_VERSION}"
                   sparkle:shortVersionString="${SHORT_VERSION}"
+                  sparkle:edSignature="${SPARKLE_SIGNATURE}"
                   length="${ASSET_SIZE}"
                   type="application/octet-stream"
                 />
@@ -110,6 +144,8 @@ jobs:
             </channel>
           </rss>
           EOF
+
+          printf '%s' "$SPARKLE_PRIVATE_KEY" | "$SPARKLE_BIN_DIR/sign_update" --ed-key-file - appcast.xml
 
           if git diff --quiet -- appcast.xml; then
             exit 0

@@ -34,5 +34,7 @@
 	<true/>
 	<key>SUFeedURL</key>
 	<string>https://raw.githubusercontent.com/xcy960815/Clipbook/master/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>qKlk+ROp4z/3CqN2nPXGfTRw478jFHal4mVxCgTkq3M=</string>
 </dict>
 </plist>
