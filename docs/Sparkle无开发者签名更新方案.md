@@ -20,9 +20,10 @@
 本仓库已做以下调整：
 
 1. `Clipbook/Info.plist` 增加 `SUPublicEDKey`
-2. GitHub Actions 在 tag 构建时使用 Sparkle `sign_update` 对发布 zip 签名
-3. GitHub Actions 更新 `appcast.xml` 时写入 `sparkle:edSignature`
-4. 新增 `scripts/generate_sparkle_keys.swift`，用于本地生成一组 Sparkle EdDSA 密钥
+2. GitHub Actions 在 tag 构建时先对 `.app` 做有效的 ad-hoc 签名
+3. GitHub Actions 再使用 Sparkle `sign_update` 对发布 zip 签名
+4. GitHub Actions 更新 `appcast.xml` 时写入 `sparkle:edSignature`
+5. 新增 `scripts/generate_sparkle_keys.swift`，用于本地生成一组 Sparkle EdDSA 密钥
 
 ## 首次配置
 
@@ -52,10 +53,11 @@ swift scripts/generate_sparkle_keys.swift
 发布时继续走 tag 触发的 GitHub Actions：
 
 1. 构建 `Clipbook.app`
-2. 打包为 zip
-3. 使用 Sparkle `sign_update` 对 zip 生成 EdDSA 签名
-4. 上传 Release 资产
-5. 更新 `master` 分支上的 `appcast.xml`
+2. 对 `.app` 执行 ad-hoc 签名，保证 bundle 代码签名有效
+3. 打包为 zip
+4. 使用 Sparkle `sign_update` 对 zip 生成 EdDSA 签名
+5. 上传 Release 资产
+6. 更新 `master` 分支上的 `appcast.xml`
 
 ## 注意事项
 
@@ -77,6 +79,19 @@ swift scripts/generate_sparkle_keys.swift
 
 所以这个方案保证的是 Sparkle 能校验更新包来源，不保证绕过 Gatekeeper 的所有分发限制。
 
-### 3. 现有旧 release 资产不会自动变成可更新
+### 3. 不能只签 zip，不签 `.app`
+
+`CODE_SIGNING_ALLOWED=NO` 构建出来的产物，可能带有不完整的 ad-hoc 痕迹。  
+这种情况下，即使 zip 的 `sparkle:edSignature` 正确，Sparkle 仍然可能在安装阶段报：
+
+- “此更新未正确签名，无法验证其真实性”
+
+因此发布流程里必须在打 zip 前，对 `.app` 再执行一次明确的 ad-hoc 签名，例如：
+
+```bash
+codesign --force --deep --sign - Clipbook.app
+```
+
+### 4. 现有旧 release 资产不会自动变成可更新
 
 只有接入本方案后，新生成的 release zip 才会带 Sparkle 签名并可用于后续更新。

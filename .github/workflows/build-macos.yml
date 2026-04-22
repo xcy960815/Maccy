@@ -44,6 +44,14 @@ jobs:
           CODE_SIGNING_ALLOWED=NO
           build
 
+      - name: Ad-hoc sign app bundle
+        run: >
+          codesign
+          --force
+          --deep
+          --sign -
+          build/Build/Products/Release/Clipbook.app
+
       - name: Package app artifact
         run: >
           ditto -c -k --sequesterRsrc --keepParent
