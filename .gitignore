@@ -2,6 +2,7 @@ xcuserdata/
 Clipbook.xcodeproj/project.xcworkspace/xcshareddata
 *.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
 .xcode-tmp/
+build-local/
 build-local-package/
 .idea
 .claude
