@@ -7,15 +7,15 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <description>Most recent changes with links to updates.</description>
     <language>en</language>
     <item>
-      <title>0.0.9</title>
+      <title>0.0.10</title>
       <description><![CDATA[<p>See the release notes for details.</p>]]></description>
-      <pubDate>Wed, 22 Apr 2026 02:57:55 GMT</pubDate>
-      <releaseNotesLink>https://github.com/xcy960815/Clipbook/releases/tag/v0.0.9</releaseNotesLink>
+      <pubDate>Wed, 22 Apr 2026 03:06:41 GMT</pubDate>
+      <releaseNotesLink>https://github.com/xcy960815/Clipbook/releases/tag/v0.0.10</releaseNotesLink>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <enclosure url="https://github.com/xcy960815/Clipbook/releases/download/v0.0.9/Clipbook-v0.0.9-unsigned.app.zip" sparkle:version="9" sparkle:shortVersionString="0.0.9" sparkle:edSignature="+cj9L5X3HGNvoQ//7bYFePBhuYikUSnsbJitDapy8ArqZjCtU/OZSuXcCy1f/2NFImOoZJqUg80WShgl3QIIBQ==" length="3605440" type="application/octet-stream"></enclosure>
+      <enclosure url="https://github.com/xcy960815/Clipbook/releases/download/v0.0.10/Clipbook-v0.0.10-unsigned.app.zip" sparkle:version="10" sparkle:shortVersionString="0.0.10" sparkle:edSignature="/ObBWl2Pbe7YPPpA9hq8W0/7IlKON7bJRlLmVftTJyw33H9yTB8YmqTAubpcFFBrTIh0WVJQ2+p5JHReU/jsAA==" length="3608272" type="application/octet-stream"></enclosure>
     </item>
   </channel>
 </rss><!-- sparkle-signatures:
-edSignature: mgYw2Hvq37wERqwlnxCPKSaPPuKuEy+gdScnWEMmol2jEUp5MwyVWc0kwWY7zpRqDnPpXUUu2fe+Uy5korA1BA==
-length: 1385
+edSignature: nkfiYYqdXjTSe0GPEd1Tmbk2QXAkchODc/dA4HW5NCR7vq1W0ofB0gKpAJVsgaCKMKt5NLHJjHEsP6eBm2H/Bw==
+length: 1391
 -->
