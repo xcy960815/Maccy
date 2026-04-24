@@ -127,7 +127,7 @@ class History: ItemsContainer { // swiftlint:disable:this type_body_length
 
   @MainActor
   func insertIntoStorage(_ item: HistoryItem) throws {
-    logger.info("Inserting item with id '\(item.title)'")
+    logger.info("Inserting history item into storage")
     Storage.shared.context.insert(item)
     Storage.shared.context.processPendingChanges()
     try? Storage.shared.context.save()

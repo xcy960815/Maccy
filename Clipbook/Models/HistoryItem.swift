@@ -6,6 +6,10 @@ import Vision
 
 @Model
 class HistoryItem {
+  private static let imageFileExtensions: Set<String> = [
+    "bmp", "gif", "heic", "heif", "icns", "jpeg", "jpg", "png", "tif", "tiff", "webp"
+  ]
+
   static var supportedPins: Set<String> {
     // "a" reserved for select all
     // "q" reserved for quit
@@ -148,13 +152,15 @@ class HistoryItem {
   }
 
   var imageData: Data? {
-    var data: Data?
-    data = contentData([.tiff, .png, .jpeg, .heic])
-    if data == nil, universalClipboardImage, let url = fileURLs.first {
-      data = try? Data(contentsOf: url)
+    if let data = contentData([.tiff, .png, .jpeg, .heic]) {
+      return data
     }
 
-    return data
+    guard let url = imageFileURL else {
+      return nil
+    }
+
+    return try? Data(contentsOf: url)
   }
 
   var image: NSImage? {
@@ -194,9 +200,14 @@ class HistoryItem {
   var fromClipbook: Bool { contentData([.fromClipbook]) != nil }
   var universalClipboard: Bool { contentData([.universalClipboard]) != nil }
 
-  private var universalClipboardImage: Bool { universalClipboard && fileURLs.first?.pathExtension == "jpeg" }
   private var universalClipboardText: Bool {
     universalClipboard && contentData([.html, .tiff, .png, .jpeg, .rtf, .string, .heic]) != nil
+  }
+
+  private var imageFileURL: URL? {
+    fileURLs.first { url in
+      Self.imageFileExtensions.contains(url.pathExtension.lowercased())
+    }
   }
 
   private func contentData(_ types: [NSPasteboard.PasteboardType]) -> Data? {

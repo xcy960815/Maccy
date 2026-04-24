@@ -3,7 +3,7 @@ import KeyboardShortcuts
 import Sparkle
 import SwiftUI
 
-class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, @unchecked Sendable {
   var panel: FloatingPanel<ContentView>!
 
   @objc
@@ -180,8 +180,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   private func synchronizeMenuIconText() {
     _ = withObservationTracking {
       AppState.shared.menuIconText
-    } onChange: {
-      DispatchQueue.main.async {
+    } onChange: { [weak self] in
+      DispatchQueue.main.async { [weak self] in
+        guard let self else { return }
         if Defaults[.showRecentCopyInMenuBar] {
           self.statusItem.button?.title = AppState.shared.menuIconText
         }

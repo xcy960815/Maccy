@@ -84,7 +84,13 @@ class HistoryItemDecorator: Identifiable, Hashable, HasVisibility {
       return
     }
     thumbnailImageGenerationTask = Task { [weak self] in
-      self?.generateThumbnailImage()
+      guard let self else {
+        return
+      }
+      defer {
+        self.thumbnailImageGenerationTask = nil
+      }
+      self.generateThumbnailImage()
     }
   }
 
@@ -100,7 +106,13 @@ class HistoryItemDecorator: Identifiable, Hashable, HasVisibility {
       return
     }
     previewImageGenerationTask = Task { [weak self] in
-      self?.generatePreviewImage()
+      guard let self else {
+        return
+      }
+      defer {
+        self.previewImageGenerationTask = nil
+      }
+      self.generatePreviewImage()
     }
   }
 
@@ -122,6 +134,8 @@ class HistoryItemDecorator: Identifiable, Hashable, HasVisibility {
     previewImage?.recache()
     thumbnailImage = nil
     previewImage = nil
+    thumbnailImageGenerationTask = nil
+    previewImageGenerationTask = nil
   }
 
   @MainActor

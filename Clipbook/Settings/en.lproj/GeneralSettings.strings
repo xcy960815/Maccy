@@ -6,6 +6,9 @@
 "OpenTooltip" = "Global shortcut key to open application.\nA repeated press of the main key while holding modifiers will select the next item in the list. In this mode, releasing modifier keys will confirm selection and close the popup.\nDefault: ⇧⌘C.";
 "DoubleClickOpen" = "Double-click to open";
 "DoubleClickPlaceholder" = "Set shortcut";
+"InputMonitoringRequired" = "Input Monitoring Required";
+"InputMonitoringMessage" = "Double-click modifier key works best with Input Monitoring. If Input Monitoring is unavailable, Accessibility can be used as a fallback. Please enable at least one of them for Clipbook in System Settings → Privacy & Security.";
+"OpenSystemSettings" = "Open System Settings";
 "Pin" = "Pin:";
 "PinTooltip" = "Shortcut key to pin history item.\nDefault: ⌥P.";
 "Delete" = "Delete:";

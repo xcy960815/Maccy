@@ -113,6 +113,7 @@ struct ListItemView<Title: View, ID: Hashable>: View {
     // macOS 26 broke hovering if no background is present.
     // The slight opcaity white background is a workaround
     .background(isSelected ? Color.accentColor.opacity(0.8) : .white.opacity(0.001))
+    .contentShape(selectionAppearance.rect(cornerRadius: Popup.cornerRadius))
     .clipShape(selectionAppearance.rect(cornerRadius: Popup.cornerRadius))
     .hoverSelectionId(selectionId)
     .help(help ?? "")

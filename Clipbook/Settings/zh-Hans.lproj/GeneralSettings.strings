@@ -6,6 +6,9 @@
 "OpenTooltip" = "打开应用程序的全局快捷键。\n在按住修改器的同时重复按下主键将选择列表中的下一个项目。在这种模式下，松开修改器键将确认选择并关闭弹出窗口。\n默认： %@C。";
 "DoubleClickOpen" = "双击唤醒";
 "DoubleClickPlaceholder" = "设置快捷键";
+"InputMonitoringRequired" = "需要输入监控权限";
+"InputMonitoringMessage" = "双击修饰键唤醒功能在启用“输入监控”时效果最佳。如果“输入监控”不可用，也可以使用“辅助功能”作为回退方案。请在“系统设置 → 隐私与安全性”中，至少为 Clipbook 开启其中一项权限。";
+"OpenSystemSettings" = "打开系统设置";
 "Pin" = "固定：";
 "PinTooltip" = "固定历史记录项目的快捷键。\n默认值：%@P。";
 "Delete" = "删除：";

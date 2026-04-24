@@ -82,7 +82,7 @@ struct GeneralSettingsPane: View {
   @State private var pasteWithoutFormatting = HistoryItemAction.pasteWithoutFormatting.modifierFlags.description
 
   @State private var doubleClickRecorder = DoubleClickModifierRecorder()
-  @State private var isDoubleClickRecorderHighlighted = false
+  @State private var isDoubleClickRecorderFocused = false
   @State private var showResetSettingsConfirmation = false
   @State private var showInputMonitoringAlert = false
   @State private var updater = SoftwareUpdater()
@@ -114,18 +114,10 @@ struct GeneralSettingsPane: View {
             ZStack(alignment: .trailing) {
               DoubleClickRecorderField(
                 text: doubleClickModifierKey.recorderText,
-                placeholder: doubleClickPlaceholder
+                placeholder: doubleClickPlaceholder,
+                isFocused: $isDoubleClickRecorderFocused,
+                onClear: clearDoubleClickSelection
               )
-              .overlay {
-                if isDoubleClickRecorderHighlighted {
-                  RoundedRectangle(cornerRadius: 9)
-                    .stroke(Color.accentColor, lineWidth: 4)
-                    .padding(-3)
-                }
-              }
-              .onTapGesture {
-                isDoubleClickRecorderHighlighted = true
-              }
 
               if doubleClickModifierKey != .none {
                 Button(action: clearDoubleClickSelection) {
@@ -231,12 +223,15 @@ struct GeneralSettingsPane: View {
     .onAppear {
       doubleClickRecorder.onSelection = { key in
         doubleClickModifierKey = key
-        isDoubleClickRecorderHighlighted = false
+        isDoubleClickRecorderFocused = false
       }
       syncDoubleClickRecorderState()
     }
     .onDisappear {
       doubleClickRecorder.stop()
+    }
+    .onChange(of: isDoubleClickRecorderFocused) { _, _ in
+      syncDoubleClickRecorderState()
     }
     .confirmationDialog(resetSettingsMessage, isPresented: $showResetSettingsConfirmation) {
       Button(resetSettingsConfirm, role: .destructive) {
@@ -271,7 +266,7 @@ struct GeneralSettingsPane: View {
       doubleClickModifierKey = .none
     }
 
-    isDoubleClickRecorderHighlighted = false
+    isDoubleClickRecorderFocused = false
     syncDoubleClickRecorderState()
   }
 
@@ -287,7 +282,7 @@ struct GeneralSettingsPane: View {
   }
 
   private func syncDoubleClickRecorderState() {
-    if doubleClickPopupEnabled {
+    if doubleClickPopupEnabled && isDoubleClickRecorderFocused {
       doubleClickRecorder.start()
     } else {
       doubleClickRecorder.stop()
@@ -296,27 +291,44 @@ struct GeneralSettingsPane: View {
 
   private func clearDoubleClickSelection() {
     doubleClickModifierKey = .none
-    isDoubleClickRecorderHighlighted = false
+    isDoubleClickRecorderFocused = false
   }
 }
 
 private struct DoubleClickRecorderField: NSViewRepresentable {
   static let minimumWidth: CGFloat = 130
-  typealias NSViewType = KeyboardShortcuts.RecorderCocoa
+  typealias NSViewType = NativeDoubleClickRecorderField
 
   let text: String
   let placeholder: String
+  @Binding var isFocused: Bool
+  let onClear: (() -> Void)?
 
   final class Coordinator {
     var cancelButtonCell: NSButtonCell?
+    var parent: DoubleClickRecorderField
+
+    init(parent: DoubleClickRecorderField) {
+      self.parent = parent
+    }
+
+    @objc
+    func handleAction(_ sender: NSSearchField) {
+      guard sender.stringValue.isEmpty else {
+        return
+      }
+
+      parent.onClear?()
+      parent.isFocused = false
+    }
   }
 
   func makeCoordinator() -> Coordinator {
-    Coordinator()
+    Coordinator(parent: self)
   }
 
   func makeNSView(context: Context) -> NSViewType {
-    let field = KeyboardShortcuts.RecorderCocoa(for: .doubleClickModifierPresentation)
+    let field = NativeDoubleClickRecorderField()
     configure(field)
     update(field, coordinator: context.coordinator)
     return field
@@ -328,17 +340,29 @@ private struct DoubleClickRecorderField: NSViewRepresentable {
   }
 
   private func configure(_ field: NSViewType) {
-    field.refusesFirstResponder = true
-    field.isEditable = false
+    field.delegate = field
+    field.isEditable = true
     field.isSelectable = false
     field.focusRingType = .none
+    field.onFocusChange = { focused in
+      if isFocused != focused {
+        DispatchQueue.main.async {
+          isFocused = focused
+        }
+      }
+    }
 
     if let cell = field.cell as? NSSearchFieldCell {
+      cell.searchButtonCell = nil
       cell.lineBreakMode = .byTruncatingTail
     }
   }
 
   private func update(_ field: NSViewType, coordinator: Coordinator) {
+    field.coordinator = coordinator
+    coordinator.parent = self
+    field.target = coordinator
+    field.action = #selector(Coordinator.handleAction(_:))
     field.placeholderString = placeholder
     field.stringValue = text
 
@@ -346,11 +370,144 @@ private struct DoubleClickRecorderField: NSViewRepresentable {
       coordinator.cancelButtonCell = coordinator.cancelButtonCell ?? cell.cancelButtonCell
       cell.cancelButtonCell = text.isEmpty ? nil : coordinator.cancelButtonCell
     }
+
+    if !isFocused,
+       let firstResponder = field.window?.firstResponder,
+       firstResponder === field || firstResponder === field.currentEditor() {
+      field.window?.makeFirstResponder(nil)
+    }
   }
 }
 
-private extension KeyboardShortcuts.Name {
-  static let doubleClickModifierPresentation = Self("doubleClickModifierPresentation")
+private final class NativeDoubleClickRecorderField: NSSearchField, NSSearchFieldDelegate {
+  weak var coordinator: DoubleClickRecorderField.Coordinator?
+  var onFocusChange: ((Bool) -> Void)?
+  private var clickOutsideMonitor: Any?
+
+  override var acceptsFirstResponder: Bool { true }
+
+  override init(frame frameRect: NSRect) {
+    super.init(frame: frameRect)
+
+    alignment = .center
+    sendsSearchStringImmediately = true
+    setContentHuggingPriority(.defaultHigh, for: .vertical)
+    setContentHuggingPriority(.defaultHigh, for: .horizontal)
+  }
+
+  @available(*, unavailable)
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  override var intrinsicContentSize: NSSize {
+    var size = super.intrinsicContentSize
+    size.width = max(size.width, DoubleClickRecorderField.minimumWidth)
+    return size
+  }
+
+  override var focusRingMaskBounds: NSRect {
+    bounds
+  }
+
+  func control(
+    _ control: NSControl,
+    textShouldBeginEditing fieldEditor: NSText
+  ) -> Bool {
+    return false
+  }
+
+  override func mouseDown(with event: NSEvent) {
+    window?.makeFirstResponder(self)
+    super.mouseDown(with: event)
+  }
+
+  override func becomeFirstResponder() -> Bool {
+    let didBecome = super.becomeFirstResponder()
+    guard didBecome else {
+      return false
+    }
+
+    startClickOutsideMonitor()
+    needsDisplay = true
+    onFocusChange?(true)
+    return true
+  }
+
+  override func resignFirstResponder() -> Bool {
+    let didResign = super.resignFirstResponder()
+    guard didResign else {
+      return false
+    }
+
+    stopClickOutsideMonitor()
+    needsDisplay = true
+    onFocusChange?(false)
+    return true
+  }
+
+  override func drawFocusRingMask() {
+    NSBezierPath(
+      roundedRect: bounds,
+      xRadius: 7,
+      yRadius: 7
+    ).fill()
+  }
+
+  override func draw(_ dirtyRect: NSRect) {
+    if isDrawingNativeFocusRing {
+      NSGraphicsContext.saveGraphicsState()
+      NSFocusRingPlacement.only.set()
+      drawFocusRingMask()
+      NSGraphicsContext.restoreGraphicsState()
+    }
+
+    super.draw(dirtyRect)
+  }
+
+  override func viewDidMoveToWindow() {
+    super.viewDidMoveToWindow()
+
+    if window == nil {
+      stopClickOutsideMonitor()
+    }
+  }
+
+  private func startClickOutsideMonitor() {
+    guard clickOutsideMonitor == nil else {
+      return
+    }
+
+    clickOutsideMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseUp, .rightMouseUp]) { [weak self] event in
+      guard let self, let window else {
+        return event
+      }
+
+      let clickPoint = convert(event.locationInWindow, from: nil)
+      let clickMargin = 3.0
+      if !bounds.insetBy(dx: -clickMargin, dy: -clickMargin).contains(clickPoint) {
+        window.makeFirstResponder(nil)
+      }
+
+      return event
+    }
+  }
+
+  private func stopClickOutsideMonitor() {
+    if let clickOutsideMonitor {
+      NSEvent.removeMonitor(clickOutsideMonitor)
+      self.clickOutsideMonitor = nil
+    }
+  }
+
+  private var isDrawingNativeFocusRing: Bool {
+    guard let window else {
+      return false
+    }
+
+    let firstResponder = window.firstResponder
+    return firstResponder === self || firstResponder === currentEditor()
+  }
 }
 
 @Observable

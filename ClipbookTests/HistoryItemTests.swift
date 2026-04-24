@@ -99,6 +99,23 @@ class HistoryItemTests: XCTestCase {
     XCTAssertEqual(item.image!.tiffRepresentation, NSImage(data: try! Data(contentsOf: url))!.tiffRepresentation)
   }
 
+  func testImageFromImageFileURL() {
+    let url = URL(fileURLWithPath: #filePath)
+      .deletingLastPathComponent()
+      .appendingPathComponent("Fixtures/guy.jpeg")
+    let item = HistoryItem()
+    Storage.shared.context.insert(item)
+    item.contents = [
+      HistoryItemContent(
+        type: NSPasteboard.PasteboardType.fileURL.rawValue,
+        value: url.dataRepresentation
+      )
+    ]
+
+    XCTAssertNotNil(item.imageData)
+    XCTAssertNotNil(item.image)
+  }
+
   func testFileFromUniversalClipboard() {
     let url = URL(fileURLWithPath: "/tmp/foo.bar")
     let fileURLContent = HistoryItemContent(
